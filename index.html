@@ -10,7 +10,6 @@
     <style>
         body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: "Microsoft JhengHei", sans-serif; touch-action: none; }
         
-        /* 啟動介面 */
         #scanner-layer { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
@@ -19,7 +18,7 @@
 
         #game-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; z-index: 2000; }
         
-        /* 拼圖容器：將底圖稍微往下移，留出上方空間給碎片 */
+        /* 拼圖容器：底圖位置 */
         #stage { 
             position: absolute; top: 65%; left: 50%; 
             transform: translate(-50%, -50%); 
@@ -87,12 +86,9 @@
         function initPieces() {
             const pieces = document.querySelectorAll('.puzzle-piece');
             pieces.forEach((p) => {
-                // --- 核心修改：強制碎片集中在上方區域 ---
-                // X 軸在 -40% 到 40% 之間隨機
+                // 碎片集中在上方
                 const randomX = (Math.random() * 80 - 40); 
-                // Y 軸在 -120% 到 -70% 之間（確保它們在底圖的上空）
                 const randomY = (Math.random() * 50 - 110); 
-                
                 p.style.left = randomX + '%';
                 p.style.top = randomY + '%';
                 makeDraggable(p);
@@ -121,8 +117,8 @@
                 el.style.left = x + 'px';
                 el.style.top = y + 'px';
 
-                // 吸附判定 (維持原本好吸的 50 像素)
-                if (Math.sqrt(x*x + y*y) < 50) {
+                // --- 核心修改：吸附範圍調小至 35 ---
+                if (Math.sqrt(x*x + y*y) < 35) {
                     snap(el);
                 }
             });
