@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>畫作復原系統</title>
+    <title>畫作復原系統 - 自定義位置版</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
@@ -85,12 +85,27 @@
 
         function initPieces() {
             const pieces = document.querySelectorAll('.puzzle-piece');
-            pieces.forEach((p) => {
-                // 碎片集中在上方
-                const randomX = (Math.random() * 80 - 40); 
-                const randomY = (Math.random() * 50 - 110); 
-                p.style.left = randomX + '%';
-                p.style.top = randomY + '%';
+            
+            // --- 🔧 在這裡自定義每一片的位置 ---
+            // x: 負數往左, 正數往右 | y: 負數往上, 正數往下
+            const positions = [
+                { x: -35, y: -130 }, // part1
+                { x:   0, y: -130 }, // part2
+                { x:  35, y: -130 }, // part3
+                { x: -35, y: -110 }, // part4
+                { x:   0, y: -110 }, // part5
+                { x:  35, y: -110 }, // part6
+                { x: -35, y: -90 },  // part7
+                { x:   0, y: -90 },  // part8
+                { x:  35, y: -90 }   // part9
+            ];
+
+            pieces.forEach((p, index) => {
+                const pos = positions[index];
+                if (pos) {
+                    p.style.left = pos.x + '%';
+                    p.style.top = pos.y + '%';
+                }
                 makeDraggable(p);
             });
         }
@@ -117,7 +132,7 @@
                 el.style.left = x + 'px';
                 el.style.top = y + 'px';
 
-                // --- 核心修改：吸附範圍調小至 35 ---
+                // 吸附判定範圍：35 像素
                 if (Math.sqrt(x*x + y*y) < 35) {
                     snap(el);
                 }
