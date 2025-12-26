@@ -19,18 +19,19 @@
 
         #game-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; z-index: 2000; }
         
+        /* 拼圖容器：將底圖稍微往下移，留出上方空間給碎片 */
         #stage { 
-            position: absolute; top: 50%; left: 50%; 
+            position: absolute; top: 65%; left: 50%; 
             transform: translate(-50%, -50%); 
             display: inline-block; 
         }
-        #bg-image { max-width: 90vw; max-height: 70vh; display: block; opacity: 0.5; }
+        #bg-image { max-width: 90vw; max-height: 55vh; display: block; opacity: 0.5; }
 
         .puzzle-piece {
-            position: absolute; /* 回歸相對定位，與底圖座標統一 */
+            position: absolute; 
             width: 100%; height: auto;
             z-index: 3000; touch-action: none;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.8));
         }
 
         .locked { 
@@ -38,7 +39,7 @@
             filter: none !important; pointer-events: none; z-index: 2500 !important; 
         }
 
-        #msg { position: fixed; top: 40px; width: 100%; text-align: center; color: #fff; z-index: 4000; font-size: 22px; font-weight: bold; }
+        #msg { position: fixed; top: 30px; width: 100%; text-align: center; color: #fff; z-index: 4000; font-size: 22px; font-weight: bold; }
         .start-btn { padding: 18px 45px; background: #fff; border: none; border-radius: 50px; font-weight: bold; font-size: 20px; color: #000; }
     </style>
 </head>
@@ -86,9 +87,12 @@
         function initPieces() {
             const pieces = document.querySelectorAll('.puzzle-piece');
             pieces.forEach((p) => {
-                // 碎片隨機散佈在底圖周圍（-40% 到 40% 的範圍）
+                // --- 核心修改：強制碎片集中在上方區域 ---
+                // X 軸在 -40% 到 40% 之間隨機
                 const randomX = (Math.random() * 80 - 40); 
-                const randomY = (Math.random() * 80 - 40); 
+                // Y 軸在 -120% 到 -70% 之間（確保它們在底圖的上空）
+                const randomY = (Math.random() * 50 - 110); 
+                
                 p.style.left = randomX + '%';
                 p.style.top = randomY + '%';
                 makeDraggable(p);
@@ -97,7 +101,6 @@
 
         function makeDraggable(el) {
             let startX, startY;
-            
             el.addEventListener('touchstart', (e) => {
                 if (el.classList.contains('locked')) return;
                 currentMaxZ++;
@@ -118,8 +121,7 @@
                 el.style.left = x + 'px';
                 el.style.top = y + 'px';
 
-                // 強力吸附判定 (50像素)
-                // 這裡判斷與底圖 (0,0) 的距離
+                // 吸附判定 (維持原本好吸的 50 像素)
                 if (Math.sqrt(x*x + y*y) < 50) {
                     snap(el);
                 }
@@ -127,7 +129,7 @@
 
             el.addEventListener('touchend', () => {
                 if (!el.classList.contains('locked')) {
-                    el.style.filter = "drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))";
+                    el.style.filter = "drop-shadow(0 0 12px rgba(255, 255, 255, 0.8))";
                 }
             });
         }
