@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>畫作復原系統</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: "Microsoft JhengHei", sans-serif; touch-action: none; }
+        
+        /* 啟動介面 */
+        #scanner-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 10000; background: #000; color: #fff;
+        }
+
+        #game-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; z-index: 2000; }
+        
+        #stage { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            display: inline-block; 
+        }
+        #bg-image { max-width: 90vw; max-height: 70vh; display: block; opacity: 0.5; }
+
+        .puzzle-piece {
+            position: absolute; /* 回歸相對定位，與底圖座標統一 */
+            width: 100%; height: auto;
+            z-index: 3000; touch-action: none;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+        }
+
+        .locked { 
+            left: 0 !important; top: 0 !important; 
+            filter: none !important; pointer-events: none; z-index: 2500 !important; 
+        }
+
+        #msg { position: fixed; top: 40px; width: 100%; text-align: center; color: #fff; z-index: 4000; font-size: 22px; font-weight: bold; }
+        .start-btn { padding: 18px 45px; background: #fff; border: none; border-radius: 50px; font-weight: bold; font-size: 20px; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div id="scanner-layer">
+        <button class="start-btn" onclick="emergencyStart()">開始畫作復原</button>
+    </div>
+
+    <div id="game-layer">
+        <div id="msg">已完成復原：<span id="count">0</span> / 9</div>
+        <div id="stage">
+            <img src="MissingPartScene.png" id="bg-image">
+            <img src="part1.png" class="puzzle-piece" id="p1">
+            <img src="part2.png" class="puzzle-piece" id="p2">
+            <img src="part3.png" class="puzzle-piece" id="p3">
+            <img src="part4.png" class="puzzle-piece" id="p4">
+            <img src="part5.png" class="puzzle-piece" id="p5">
+            <img src="part6.png" class="puzzle-piece" id="p6">
+            <img src="part7.png" class="puzzle-piece" id="p7">
+            <img src="part8.png" class="puzzle-piece" id="p8">
+            <img src="part9.png" class="puzzle-piece" id="p9">
+        </div>
+    </div>
+
+    <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true; uiLoading: no;" embedded vr-mode-ui="enabled: false">
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-entity mindar-image-target="targetIndex: 0" id="a-trigger"></a-entity>
+    </a-scene>
+
+    <script>
+        let lockedCount = 0;
+        const totalCount = 9;
+        let currentMaxZ = 3000;
+        let hasStarted = false;
+
+        function emergencyStart() {
+            if (hasStarted) return;
+            hasStarted = true;
+            document.getElementById('scanner-layer').style.display = 'none';
+            document.getElementById('game-layer').style.display = 'block';
+            initPieces();
+        }
+
+        function initPieces() {
+            const pieces = document.querySelectorAll('.puzzle-piece');
+            pieces.forEach((p) => {
+                // 碎片隨機散佈在底圖周圍（-40% 到 40% 的範圍）
+                const randomX = (Math.random() * 80 - 40); 
+                const randomY = (Math.random() * 80 - 40); 
+                p.style.left = randomX + '%';
+                p.style.top = randomY + '%';
+                makeDraggable(p);
+            });
+        }
+
+        function makeDraggable(el) {
+            let startX, startY;
+            
+            el.addEventListener('touchstart', (e) => {
+                if (el.classList.contains('locked')) return;
+                currentMaxZ++;
+                el.style.zIndex = currentMaxZ;
+                const t = e.touches[0];
+                startX = t.clientX - el.offsetLeft;
+                startY = t.clientY - el.offsetTop;
+                el.style.filter = "drop-shadow(0 0 20px #fff) brightness(1.2)";
+            });
+
+            el.addEventListener('touchmove', (e) => {
+                if (el.classList.contains('locked')) return;
+                e.preventDefault();
+                const t = e.touches[0];
+                const x = t.clientX - startX;
+                const y = t.clientY - startY;
+                
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+
+                // 強力吸附判定 (50像素)
+                // 這裡判斷與底圖 (0,0) 的距離
+                if (Math.sqrt(x*x + y*y) < 50) {
+                    snap(el);
+                }
+            });
+
+            el.addEventListener('touchend', () => {
+                if (!el.classList.contains('locked')) {
+                    el.style.filter = "drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))";
+                }
+            });
+        }
+
+        function snap(el) {
+            el.classList.add('locked');
+            lockedCount++;
+            document.getElementById('count').innerText = lockedCount;
+            if (navigator.vibrate) navigator.vibrate(50);
+            if (lockedCount === totalCount) {
+                document.getElementById('msg').innerHTML = "✨ 畫作已完整復原 ✨";
+                document.getElementById('bg-image').style.opacity = "1";
+            }
+        }
+
+        document.getElementById('a-trigger').addEventListener("targetFound", emergencyStart);
+    </script>
+</body>
+</html>
