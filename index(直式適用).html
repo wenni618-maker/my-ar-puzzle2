@@ -18,7 +18,6 @@
 	    </style>
 </head>
 <body>
-<button id="btn-close" style="position:fixed; top:10px; right:10px; z-index:9999; width:40px; height:40px; border-radius:50%; background:white; border:none; font-size:20px; font-weight:bold;">✕</button>
 
     <div id="message">將碎片拖動至正確位置</div>
     <div id="game-container">
@@ -83,9 +82,7 @@
             }
         }
 
- document.getElementById('btn-close').onclick = function() {
-    // 告訴父視窗 (AR 主控台) 關閉這個遊戲層
-    window.parent.postMessage('closeGame', '*');
+ 
 };
 
     </script>
