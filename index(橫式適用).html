@@ -2,205 +2,23 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>水墨碎片修復</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼圖遊戲 - 橫式模式</title>
     <style>
-        * { box-sizing: border-box; } /* 確保邊框不撐開寬度 */
-
-        body { 
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            /* 使用 svh (Small Viewport Height) 避開手機網址列 */
-            height: 100svh; 
-            width: 100vw; 
-            overflow: hidden; 
-            position: fixed; /* 防止橡皮筋滾動效應 */
-            font-family: "Microsoft JhengHei", sans-serif; 
-            background-color: #1a1a1a; 
-        }
-
-        #game-container { 
-            position: relative; 
-            /* 核心修正：
-               1. 寬度最高 92vw
-               2. 高度最高 80svh (保留空間給文字與安全區)
-               3. 透過 calc 自動計算兩者最小值，確保比例 370:190 絕對不變
-            */
-            width: min(92vw, calc(80svh * (370 / 190))); 
-            aspect-ratio: 370 / 190; 
-            
-            background-image: url('bg.jpg'); 
-            background-size: calc(100% * (260 / 370)) 100%; 
-            background-repeat: no-repeat; 
-            background-position: center; 
-            background-color: #ccc; 
-            border: 2px solid #ccc; 
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.5); 
-            /* 確保碎片超出容器邊緣時（例如在左右兩側）依然看得到 */
-            overflow: visible; 
-        }
-
-        .piece { 
-            position: absolute; 
-            cursor: grab; 
-            touch-action: none; 
-            z-index: 10; 
-            transition: transform 0.2s ease-out; 
-            transform-origin: center; 
-        }
-
-        .piece:active { 
-            cursor: grabbing; 
-            z-index: 100; 
-            transform: translate(-50%, -50%) scale(1.15); 
-            filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 1)); 
-        }
-
-        .piece.dragging { transform: scale(1.15); z-index: 100; }
-        .piece.locked { z-index: 1; pointer-events: none; transform: scale(1); }
-
-        #complete-overlay { 
-            position: absolute; 
-            top: 0; left: 0; width: 100%; height: 100%; 
-            background-image: url('complete.jpg'); 
-            background-size: calc(100% * (260 / 370)) 100%; 
-            background-repeat: no-repeat; 
-            background-position: center; 
-            background-color: white; 
-            z-index: 2000; 
-            display: none; 
-            opacity: 0; 
-            pointer-events: none; 
-            transition: opacity 2s ease-in-out; 
-            justify-content: center; 
-            align-items: center; 
-        }
-
-        #complete-overlay.show { display: flex; opacity: 1; pointer-events: auto; }
-        
-        #complete-banner { 
-            width: calc(100% * (260 / 370)); 
-            background-color: rgba(255, 255, 255, 0.75); 
-            padding: 2% 0; 
-            text-align: center; 
-            opacity: 0; 
-            transform: translateY(10px); 
-            transition: opacity 1.5s ease-in-out 0.5s, transform 1.5s ease-out 0.5s; 
-        }
-
-        #complete-overlay.show #complete-banner { opacity: 1; transform: translateY(0); }
-
-        #complete-text { 
-            color: #1a1a1a; 
-            font-weight: bold; 
-            letter-spacing: 1em; 
-            text-indent: 1em; 
-            font-size: clamp(12px, 4vh, 20px); 
-        }
-
-        #message { 
-            position: absolute; 
-            bottom: 2svh; 
-            color: white; 
-            background: rgba(0,0,0,0.6); 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            z-index: 1000; 
-            font-size: 12px; 
-        }
-	   	    
+        /* 這裡放你原本橫式的 CSS */
+        body { background: #8e44ad; color: white; text-align: center; }
     </style>
 </head>
 <body>
-
-
-    <div id="message">將碎片拖動至正確位置</div>
-    <div id="game-container">
-        <div id="complete-overlay"><div id="complete-banner"><div id="complete-text">修復完成</div></div></div>
-        
-        <img src="piece1.png" id="p1" class="piece" style="width: 11.5%; left: 2%; top: 11%;" data-target-x="45.66" data-target-y="14.6">
-        <img src="piece2.png" id="p2" class="piece" style="width: 10.5%; left: 2%; top: 36%;" data-target-x="50.1" data-target-y="33.8">
-        <img src="piece3.png" id="p3" class="piece" style="width: 6.5%; left: 2%; top: 57%;" data-target-x="28.1" data-target-y="16.2">
-        <img src="piece4.png" id="p4" class="piece" style="width: 8.4%; left: 2%; top: 77%;" data-target-x="38.85" data-target-y="39.9">
-        <img src="piece5.png" id="p5" class="piece" style="width: 14.3%; left: 85%; top: 5%;" data-target-x="25.5" data-target-y="36.98">
-        <img src="piece6.png" id="p6" class="piece" style="width: 8.4%; left: 88%; top: 17%;" data-target-x="39.1" data-target-y="62.85">
-        <img src="piece7.png" id="p7" class="piece" style="width: 11.4%; left: 86%; top: 35%;" data-target-x="21.6" data-target-y="55.2">
-        <img src="piece8.png" id="p8" class="piece" style="width: 7.7%; left: 89%; top: 50%;" data-target-x="57.7" data-target-y="66.8">
-        <img src="piece9.png" id="p9" class="piece" style="width: 11.5%; left: 87%; top: 78%;" data-target-x="32.5" data-target-y="83.4">
-    </div>
-
+    <h1>這是橫式拼圖面</h1>
     <script>
-        function checkOrientation() {
+        function monitorOrientation() {
+            // 如果高度突然大於寬度，表示使用者把手機轉直了
             if (window.innerHeight > window.innerWidth) {
-                window.location.replace("index.html");
+                window.location.replace("index(直式適用).html?t=" + new Date().getTime());
             }
         }
-        window.addEventListener("resize", checkOrientation);
-        window.addEventListener("load", checkOrientation);
-
-        const container = document.getElementById('game-container');
-        let activePiece = null;
-
-        document.querySelectorAll('.piece').forEach(piece => {
-            piece.onpointerdown = function(e) {
-                if(piece.classList.contains('locked')) return;
-                activePiece = piece;
-                activePiece.classList.add('dragging');
-                piece.setPointerCapture(e.pointerId);
-            };
-
-            piece.onpointermove = function(e) {
-                if (!activePiece) return;
-                const rect = container.getBoundingClientRect();
-                let x = ((e.clientX - rect.left) / rect.width) * 100;
-                let y = ((e.clientY - rect.top) / rect.height) * 100;
-                const pWidth = parseFloat(activePiece.style.width);
-                const pHeight = (activePiece.offsetHeight / rect.height) * 100;
-                activePiece.style.left = (x - pWidth/2) + '%';
-                activePiece.style.top = (y - pHeight/2) + '%';
-            };
-
-            piece.onpointerup = function(e) {
-                if (!activePiece) return;
-                const rect = container.getBoundingClientRect();
-                const pWidth = parseFloat(activePiece.style.width);
-                const pHeight = (activePiece.offsetHeight / rect.height) * 100;
-                const currentX = parseFloat(activePiece.style.left) + pWidth/2;
-                const currentY = parseFloat(activePiece.style.top) + pHeight/2;
-                const targetX = parseFloat(activePiece.getAttribute('data-target-x'));
-                const targetY = parseFloat(activePiece.getAttribute('data-target-y'));
-
-                activePiece.classList.remove('dragging');
-
-                if (!isNaN(targetX) && !isNaN(targetY)) {
-                    const distance = Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2));
-                    if (distance < 5) { 
-                        activePiece.style.left = (targetX - pWidth/2) + '%';
-                        activePiece.style.top = (targetY - pHeight/2) + '%';
-                        activePiece.classList.add('locked');
-                        checkWin();
-                    }
-                }
-                activePiece = null;
-            };
-        });
-
-        function checkWin() {
-            if (document.querySelectorAll('.piece.locked').length === 9) {
-                const ov = document.getElementById('complete-overlay');
-                document.getElementById('message').style.display = 'none';
-                ov.style.display = 'flex';
-                setTimeout(() => ov.classList.add('show'), 50);
-            }
-        }
-
-
-};
-
-
+        window.addEventListener("resize", monitorOrientation);
     </script>
 </body>
 </html>

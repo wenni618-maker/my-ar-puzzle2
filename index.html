@@ -1,22 +1,30 @@
-function redirect() {
-    // 重新取得當前的寬高
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    
-    // 判斷橫式或直式
-    const isLandscape = w > h;
-    const target = isLandscape ? "index(橫式適用).html" : "index(直式適用).html";
-    
-    // 檢查目前是否已經在正確的頁面，避免無限迴圈跳轉
-    if (!window.location.pathname.includes(target)) {
-        window.location.replace(target + "?t=" + new Date().getTime());
-    }
-}
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>載入中...</title>
+    <style>
+        body { background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; margin: 0; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+    <div>正在偵測裝置方向，請稍候...</div>
 
-// 監聽視窗大小改變，這比 orientationchange 更可靠
-window.addEventListener("resize", () => {
-    clearTimeout(window.resizeTimer);
-    window.resizeTimer = setTimeout(redirect, 200); 
-});
+    <script>
+        function checkOrientation() {
+            // 判斷寬高比
+            const isLandscape = window.innerWidth > window.innerHeight;
+            const target = isLandscape ? "index(橫式適用).html" : "index(直式適用).html";
+            
+            // 跳轉至對應頁面
+            window.location.replace(target + "?t=" + new Date().getTime());
+        }
 
-window.onload = redirect;
+        // 確保頁面載入後執行
+        window.addEventListener("load", checkOrientation);
+        // 針對手機轉向即時反應
+        window.addEventListener("resize", checkOrientation);
+    </script>
+</body>
+</html>
