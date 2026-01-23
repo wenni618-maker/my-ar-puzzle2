@@ -9,21 +9,14 @@
     </style>
 </head>
 <body>
-    <div>正在偵測裝置方向，請稍候...</div>
-
+    <div>正在偵測裝置方向...</div>
     <script>
         function checkOrientation() {
-            // 判斷寬高比
             const isLandscape = window.innerWidth > window.innerHeight;
             const target = isLandscape ? "index(橫式適用).html" : "index(直式適用).html";
-            
-            // 跳轉至對應頁面
             window.location.replace(target + "?t=" + new Date().getTime());
         }
-
-        // 確保頁面載入後執行
         window.addEventListener("load", checkOrientation);
-        // 針對手機轉向即時反應
         window.addEventListener("resize", checkOrientation);
     </script>
 </body>
