@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>載入中...</title>
+    <style>
+        body { background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; margin: 0; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+    <div>正在偵測裝置方向...</div>
+    <script>
+        function redirect() {
+            // 判斷寬高比，寬大於高則為橫式
+            const isLandscape = window.innerWidth > window.innerHeight;
+            const target = isLandscape ? "index(橫式適用).html" : "index(直式適用).html";
+            // 加入時間戳記避免平板快取舊頁面內容
+            window.location.replace(target + "?t=" + new Date().getTime());
+        }
+        window.onload = redirect;
+        // 監聽旋轉事件
+        window.addEventListener("orientationchange", () => setTimeout(redirect, 300));
+    </script>
+</body>
+</html>
