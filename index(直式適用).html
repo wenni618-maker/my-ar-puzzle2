@@ -17,8 +17,7 @@
     </style>
 </head>
 <body>
-    <button id="btn-close" style="position:fixed; top:10px; right:10px; z-index:9999; width:40px; height:40px; border-radius:50%; background:white; border:none; font-size:20px; font-weight:bold;">✕</button>
-    <div id="message">將碎片拖動至正確位置</div>
+        <div id="message">將碎片拖動至正確位置</div>
     <div id="game-container">
         <div id="complete-overlay"><div id="complete-banner"><div id="complete-text">修復完成</div></div></div>
         <img src="piece1.png" id="p1" class="piece" style="width: 16.5%; left: 10%; top: 15%;" data-target-x="43.8" data-target-y="31.3">
@@ -47,7 +46,6 @@
             piece.onpointerup = e => { if (!activePiece) return; const currentX = parseFloat(activePiece.style.left), currentY = parseFloat(activePiece.style.top), targetX = parseFloat(activePiece.getAttribute('data-target-x')), targetY = parseFloat(activePiece.getAttribute('data-target-y')); if (Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2)) < 5) { activePiece.style.left = targetX + '%'; activePiece.style.top = targetY + '%'; activePiece.classList.add('locked'); checkWin(); } activePiece = null; };
         });
         function checkWin() { if (document.querySelectorAll('.piece.locked').length === 9) { const overlay = document.getElementById('complete-overlay'), banner = document.getElementById('complete-banner'); overlay.style.display = 'flex'; setTimeout(() => { overlay.style.opacity = '1'; banner.style.opacity = '1'; banner.style.transform = 'translateY(0)'; }, 100); } }
-        document.getElementById('btn-close').onclick = () => window.parent.postMessage('closeGame', '*');
-    </script>
+            </script>
 </body>
 </html>

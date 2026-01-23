@@ -21,8 +21,7 @@
     </style>
 </head>
 <body>
-    <button id="btn-close" style="position:fixed; top:10px; right:10px; z-index:9999; width:40px; height:40px; border-radius:50%; background:white; border:none; font-size:20px; font-weight:bold;">✕</button>
-    <div id="message">將碎片拖動至正確位置</div>
+      <div id="message">將碎片拖動至正確位置</div>
     <div id="game-container">
         <div id="complete-overlay"><div id="complete-banner"><div id="complete-text">修復完成</div></div></div>
         <img src="piece1.png" id="p1" class="piece" style="width: 11.5%; left: 2%; top: 11%;" data-target-x="45.66" data-target-y="14.6">
@@ -50,7 +49,6 @@
             piece.onpointerup = e => { if (!activePiece) return; const rect = container.getBoundingClientRect(), pWidth = parseFloat(activePiece.style.width), pHeight = (activePiece.offsetHeight / rect.height) * 100, currentX = parseFloat(activePiece.style.left) + pWidth/2, currentY = parseFloat(activePiece.style.top) + pHeight/2, targetX = parseFloat(activePiece.getAttribute('data-target-x')), targetY = parseFloat(activePiece.getAttribute('data-target-y')); activePiece.classList.remove('dragging'); if (!isNaN(targetX) && !isNaN(targetY)) { if (Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2)) < 5) { activePiece.style.left = (targetX - pWidth/2) + '%'; activePiece.style.top = (targetY - pHeight/2) + '%'; activePiece.classList.add('locked'); checkWin(); } } activePiece = null; };
         });
         function checkWin() { if (document.querySelectorAll('.piece.locked').length === 9) { const ov = document.getElementById('complete-overlay'); document.getElementById('message').style.display = 'none'; ov.style.display = 'flex'; setTimeout(() => ov.classList.add('show'), 50); } }
-        document.getElementById('btn-close').onclick = () => window.parent.postMessage('closeGame', '*');
-    </script>
+           </script>
 </body>
 </html>
