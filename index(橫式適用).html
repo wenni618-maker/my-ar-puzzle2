@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>水墨碎片修復 - 橫式</title>
     <script>
-        // 【新增】預先偵測邏輯：如果是直向，立即跳轉到直式頁面
         function verifyOrientation() {
+            // 如果寬高比顯示為直向，立即跳轉
             if (window.innerHeight > window.innerWidth) {
                 window.location.replace("index(直式適用).html?t=" + new Date().getTime());
             }
         }
-        verifyOrientation(); // 立即執行
+        verifyOrientation(); // 頁面解析前立即執行
         window.addEventListener("resize", verifyOrientation);
     </script>
     <style>
@@ -49,53 +49,12 @@
         let activePiece = null;
 
         document.querySelectorAll('.piece').forEach(piece => {
-            piece.onpointerdown = e => { 
-                if(piece.classList.contains('locked')) return; 
-                activePiece = piece; 
-                activePiece.classList.add('dragging'); 
-                piece.setPointerCapture(e.pointerId); 
-            };
-            piece.onpointermove = e => { 
-                if (!activePiece) return; 
-                const rect = container.getBoundingClientRect(); 
-                let x = ((e.clientX - rect.left) / rect.width) * 100, 
-                    y = ((e.clientY - rect.top) / rect.height) * 100; 
-                const pWidth = parseFloat(activePiece.style.width), 
-                      pHeight = (activePiece.offsetHeight / rect.height) * 100; 
-                activePiece.style.left = (x - pWidth/2) + '%'; 
-                activePiece.style.top = (y - pHeight/2) + '%'; 
-            };
-            piece.onpointerup = e => { 
-                if (!activePiece) return; 
-                const rect = container.getBoundingClientRect(), 
-                      pWidth = parseFloat(activePiece.style.width), 
-                      pHeight = (activePiece.offsetHeight / rect.height) * 100, 
-                      currentX = parseFloat(activePiece.style.left) + pWidth/2, 
-                      currentY = parseFloat(activePiece.style.top) + pHeight/2, 
-                      targetX = parseFloat(activePiece.getAttribute('data-target-x')), 
-                      targetY = parseFloat(activePiece.getAttribute('data-target-y')); 
-                
-                activePiece.classList.remove('dragging'); 
-                if (!isNaN(targetX) && !isNaN(targetY)) { 
-                    if (Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2)) < 5) { 
-                        activePiece.style.left = (targetX - pWidth/2) + '%'; 
-                        activePiece.style.top = (targetY - pHeight/2) + '%'; 
-                        activePiece.classList.add('locked'); 
-                        checkWin(); 
-                    } 
-                } 
-                activePiece = null; 
-            };
+            piece.onpointerdown = e => { if(piece.classList.contains('locked')) return; activePiece = piece; activePiece.classList.add('dragging'); piece.setPointerCapture(e.pointerId); };
+            piece.onpointermove = e => { if (!activePiece) return; const rect = container.getBoundingClientRect(); let x = ((e.clientX - rect.left) / rect.width) * 100, y = ((e.clientY - rect.top) / rect.height) * 100; const pWidth = parseFloat(activePiece.style.width), pHeight = (activePiece.offsetHeight / rect.height) * 100; activePiece.style.left = (x - pWidth/2) + '%'; activePiece.style.top = (y - pHeight/2) + '%'; };
+            piece.onpointerup = e => { if (!activePiece) return; const rect = container.getBoundingClientRect(), pWidth = parseFloat(activePiece.style.width), currentX = parseFloat(activePiece.style.left) + pWidth/2, currentY = parseFloat(activePiece.style.top) + (activePiece.offsetHeight / rect.height * 100)/2, targetX = parseFloat(activePiece.getAttribute('data-target-x')), targetY = parseFloat(activePiece.getAttribute('data-target-y')); activePiece.classList.remove('dragging'); if (Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2)) < 5) { activePiece.style.left = (targetX - pWidth/2) + '%'; activePiece.style.top = (targetY - (activePiece.offsetHeight / rect.height * 100)/2) + '%'; activePiece.classList.add('locked'); checkWin(); } activePiece = null; };
         });
 
-        function checkWin() { 
-            if (document.querySelectorAll('.piece.locked').length === 9) { 
-                const ov = document.getElementById('complete-overlay'); 
-                document.getElementById('message').style.display = 'none'; 
-                ov.style.display = 'flex'; 
-                setTimeout(() => ov.classList.add('show'), 50); 
-            } 
-        }
+        function checkWin() { if (document.querySelectorAll('.piece.locked').length === 9) { const ov = document.getElementById('complete-overlay'); document.getElementById('message').style.display = 'none'; ov.style.display = 'flex'; setTimeout(() => ov.classList.add('show'), 50); } }
     </script>
 </body>
 </html>

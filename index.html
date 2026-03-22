@@ -7,25 +7,18 @@
     <style>
         body { background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; margin: 0; font-family: sans-serif; }
     </style>
+    <script>
+        function checkOrientation() {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            const target = isLandscape ? "index(橫式適用).html" : "index(直式適用).html";
+            // 立即跳轉
+            window.location.replace(target + "?t=" + new Date().getTime());
+        }
+        // 頁面加載時立即執行一次
+        checkOrientation();
+    </script>
 </head>
 <body>
     <div>正在偵測裝置方向...</div>
-    <script>
-        function checkOrientation() {
-            // 判斷寬度是否大於高度
-            const isLandscape = window.innerWidth > window.innerHeight;
-            const target = isLandscape ? "index(橫式適用).html" : "index(直式適用).html";
-            
-            // 執行跳轉並加上時間戳防止快取
-            window.location.replace(target + "?t=" + new Date().getTime());
-        }
-
-        // 確保在各種載入階段都能觸發
-        if (document.readyState === 'complete') {
-            checkOrientation();
-        } else {
-            window.addEventListener("load", checkOrientation);
-        }
-    </script>
 </body>
 </html>

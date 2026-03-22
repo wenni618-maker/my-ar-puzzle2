@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>水墨碎片修復 - 直式</title>
     <script>
-        // 【新增】預先偵測邏輯：如果是橫向，立即跳轉到橫式頁面
         function verifyOrientation() {
+            // 如果寬度大於高度，表示應為橫式
             if (window.innerWidth > window.innerHeight) {
                 window.location.replace("index(橫式適用).html?t=" + new Date().getTime());
             }
@@ -43,38 +43,20 @@
     <script>
         const container = document.getElementById('game-container');
         let activePiece = null;
-
         document.querySelectorAll('.piece').forEach(piece => {
             piece.onpointerdown = e => { if(piece.classList.contains('locked')) return; activePiece = piece; piece.setPointerCapture(e.pointerId); };
             piece.onpointermove = e => { if (!activePiece) return; const rect = container.getBoundingClientRect(); activePiece.style.left = (((e.clientX - rect.left) / rect.width) * 100) + '%'; activePiece.style.top = (((e.clientY - rect.top) / rect.height) * 100) + '%'; };
             piece.onpointerup = e => { 
                 if (!activePiece) return; 
-                const currentX = parseFloat(activePiece.style.left), 
-                      currentY = parseFloat(activePiece.style.top), 
-                      targetX = parseFloat(activePiece.getAttribute('data-target-x')), 
-                      targetY = parseFloat(activePiece.getAttribute('data-target-y')); 
+                const currentX = parseFloat(activePiece.style.left), currentY = parseFloat(activePiece.style.top), 
+                      targetX = parseFloat(activePiece.getAttribute('data-target-x')), targetY = parseFloat(activePiece.getAttribute('data-target-y')); 
                 if (Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2)) < 5) { 
-                    activePiece.style.left = targetX + '%'; 
-                    activePiece.style.top = targetY + '%'; 
-                    activePiece.classList.add('locked'); 
-                    checkWin(); 
+                    activePiece.style.left = targetX + '%'; activePiece.style.top = targetY + '%'; activePiece.classList.add('locked'); checkWin(); 
                 } 
                 activePiece = null; 
             };
         });
-
-        function checkWin() { 
-            if (document.querySelectorAll('.piece.locked').length === 9) { 
-                const overlay = document.getElementById('complete-overlay'), 
-                      banner = document.getElementById('complete-banner'); 
-                overlay.style.display = 'flex'; 
-                setTimeout(() => { 
-                    overlay.style.opacity = '1'; 
-                    banner.style.opacity = '1'; 
-                    banner.style.transform = 'translateY(0)'; 
-                }, 100); 
-            } 
-        }
+        function checkWin() { if (document.querySelectorAll('.piece.locked').length === 9) { const overlay = document.getElementById('complete-overlay'), banner = document.getElementById('complete-banner'); overlay.style.display = 'flex'; setTimeout(() => { overlay.style.opacity = '1'; banner.style.opacity = '1'; banner.style.transform = 'translateY(0)'; }, 100); } }
     </script>
 </body>
 </html>
